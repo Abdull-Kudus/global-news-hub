@@ -430,3 +430,68 @@ function updateLastUpdate() {
     const now = new Date().toLocaleString();
     document.getElementById('lastUpdate').textContent = now;
 }
+
+// ===== SAVED ARTICLES =====
+function loadSavedArticles() {
+    if (currentUser) {
+        const key = 'savedArticles_' + currentUser.username;
+        savedArticles = JSON.parse(localStorage.getItem(key) || '[]');
+    }
+}
+
+function saveArticle(article) {
+    const exists = savedArticles.some(saved => saved.url === article.url);
+    
+    if (exists) {
+        alert('Article already saved!');
+        return;
+    }
+
+    savedArticles.push({
+        ...article,
+        savedAt: new Date().toISOString()
+    });
+
+    const key = 'savedArticles_' + currentUser.username;
+    localStorage.setItem(key, JSON.stringify(savedArticles));
+    
+    updateStats();
+    displayArticles(allArticles); // Refresh to update button states
+    
+    alert('Article saved successfully!');
+}
+
+// ===== UI STATE FUNCTIONS =====
+function showLoading() {
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('articlesGrid').classList.add('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('articlesGrid').classList.remove('hidden');
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorState');
+    errorDiv.textContent = '⚠️ ' + message;
+    errorDiv.classList.remove('hidden');
+}
+
+function hideError() {
+    document.getElementById('errorState').classList.add('hidden');
+}
+
+// ===== DEMO ACCOUNT SETUP =====
+(function setupDemoAccount() {
+    const users = JSON.parse(localStorage.getItem('users') || '{}');
+    if (!users['demo']) {
+        users['demo'] = {
+            email: 'demo@example.com',
+            password: 'demo123',
+            createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+})();
