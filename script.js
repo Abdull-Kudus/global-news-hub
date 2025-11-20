@@ -201,3 +201,232 @@ async function testApiKey(key) {
         alert('Error testing API key: ' + error.message);
     }
 }
+
+// ===== CACHING SYSTEM =====
+function getCacheKey(url) {
+    return 'cache_' + url;
+}
+
+function getCachedData(url) {
+    const cacheKey = getCacheKey(url);
+    const cached = localStorage.getItem(cacheKey);
+    
+    if (cached) {
+        const data = JSON.parse(cached);
+        const now = Date.now();
+        
+        // Check if cache is still valid
+        if (now - data.timestamp < CACHE_DURATION) {
+            console.log('Using cached data for:', url);
+            updateCacheStatus('Cached ✓');
+            return data.content;
+        } else {
+            // Cache expired
+            localStorage.removeItem(cacheKey);
+        }
+    }
+    
+    return null;
+}
+
+function setCachedData(url, content) {
+    const cacheKey = getCacheKey(url);
+    const data = {
+        timestamp: Date.now(),
+        content: content
+    };
+    
+    try {
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        console.log('Data cached for:', url);
+    } catch (e) {
+        // Storage full, clear old caches
+        clearOldCaches();
+    }
+}
+
+function clearOldCaches() {
+    const keys = Object.keys(localStorage);
+    const cacheKeys = keys.filter(key => key.startsWith('cache_'));
+    
+    // Remove oldest caches first
+    cacheKeys.forEach(key => {
+        const data = JSON.parse(localStorage.getItem(key));
+        if (Date.now() - data.timestamp > CACHE_DURATION) {
+            localStorage.removeItem(key);
+        }
+    });
+}
+
+function updateCacheStatus(status) {
+    document.getElementById('cacheStatus').textContent = status;
+}
+
+// ===== NEWS API FUNCTIONS =====
+async function fetchNews(url) {
+    try {
+        // Check cache first
+        const cachedData = getCachedData(url);
+        if (cachedData) {
+            return cachedData;
+        }
+
+        updateCacheStatus('Fetching...');
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'error') {
+            throw new Error(data.message || 'API Error');
+        }
+
+        // Cache the response
+        setCachedData(url, data);
+        updateCacheStatus('Active ✓');
+
+        return data;
+    } catch (error) {
+        throw new Error('Failed to fetch news: ' + error.message);
+    }
+}
+
+async function loadTopHeadlines() {
+    const country = document.getElementById('countryFilter').value;
+    const category = document.getElementById('categoryFilter').value;
+    
+    let url = `https://newsapi.org/v2/top-headlines?country=${country}&pageSize=50&apiKey=${apiKey}`;
+    
+    if (category !== 'all') {
+        url += `&category=${category}`;
+    }
+
+    try {
+        showLoading();
+        hideError();
+        
+        const data = await fetchNews(url);
+        allArticles = data.articles || [];
+        displayArticles(allArticles);
+        updateStats();
+        updateLastUpdate();
+        
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+async function searchNews() {
+    const query = document.getElementById('searchInput').value.trim();
+    
+    if (!query) {
+        showError('Please enter a search term');
+        return;
+    }
+
+    const sortBy = document.getElementById('sortFilter').value;
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=${sortBy}&pageSize=50&apiKey=${apiKey}`;
+
+    try {
+        showLoading();
+        hideError();
+        
+        const data = await fetchNews(url);
+        allArticles = data.articles || [];
+        displayArticles(allArticles);
+        updateStats();
+        updateLastUpdate();
+        
+    } catch (error) {
+        showError(error.message);
+    } finally {
+        hideLoading();
+    }
+}
+
+function applyFilters() {
+    // Reload with new filters
+    const searchQuery = document.getElementById('searchInput').value.trim();
+    
+    if (searchQuery) {
+        searchNews();
+    } else {
+        loadTopHeadlines();
+    }
+}
+
+// ===== DISPLAY FUNCTIONS =====
+function displayArticles(articles) {
+    const grid = document.getElementById('articlesGrid');
+    const emptyState = document.getElementById('emptyState');
+
+    if (!articles || articles.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+
+    // Filter out articles without titles or images
+    const validArticles = articles.filter(article => 
+        article.title && 
+        article.title !== '[Removed]' && 
+        article.description
+    );
+
+    grid.innerHTML = validArticles.map(article => createArticleCard(article)).join('');
+}
+
+function createArticleCard(article) {
+    const imageUrl = article.urlToImage || 'https://via.placeholder.com/400x200?text=No+Image';
+    const source = article.source.name || 'Unknown Source';
+    const title = article.title || 'No Title';
+    const description = article.description || 'No description available';
+    const publishedAt = new Date(article.publishedAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    const isSaved = savedArticles.some(saved => saved.url === article.url);
+    const saveButtonText = isSaved ? '✓ Saved' : '💾 Save';
+    const saveButtonClass = isSaved ? 'btn-save' : 'btn-save';
+
+    return `
+        <div class="article-card">
+            <img src="${imageUrl}" alt="${title}" class="article-image" 
+                 onerror="this.src='https://via.placeholder.com/400x200?text=Image+Unavailable'">
+            <div class="article-content">
+                <div class="article-source">${source}</div>
+                <h3 class="article-title">${title}</h3>
+                <p class="article-description">${description.substring(0, 150)}...</p>
+                <div class="article-meta">
+                    <span class="article-date">${publishedAt}</span>
+                    <div class="article-actions">
+                        <button class="${saveButtonClass}" onclick='saveArticle(${JSON.stringify(article).replace(/'/g, "&apos;")})'>${saveButtonText}</button>
+                        <a href="${article.url}" target="_blank" class="btn-read">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function updateStats() {
+    document.getElementById('totalArticles').textContent = allArticles.length;
+    document.getElementById('savedArticles').textContent = savedArticles.length;
+    
+    const uniqueSources = new Set(allArticles.map(a => a.source.name)).size;
+    document.getElementById('totalSources').textContent = uniqueSources;
+}
+
+function updateLastUpdate() {
+    const now = new Date().toLocaleString();
+    document.getElementById('lastUpdate').textContent = now;
+}
