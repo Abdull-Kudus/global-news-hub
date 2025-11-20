@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+     <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1> Global News Hub</h1>
+            <p class="subtitle">Your personalized news tracking platform for updates</p>
+            
+            <div id="loginForm">
+                <h2>Sign In</h2>
+                <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+                <button onclick="handleLogin()">Sign In</button>
+                <p class="switch-form">Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+            </div>
 
 
 
@@ -24,6 +37,6 @@
 
 
 
-    
+
 </body>
 </html>
