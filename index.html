@@ -21,6 +21,16 @@
                 <p class="switch-form">Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
             </div>
 
+             <div id="registerForm" class="hidden">
+                <h2>Create Account</h2>
+                <input type="text" id="registerUsername" placeholder="Username (min 3 characters)" autocomplete="username">
+                <input type="email" id="registerEmail" placeholder="Email" autocomplete="email">
+                <input type="password" id="registerPassword" placeholder="Password (min 6 characters)" autocomplete="new-password">
+                <input type="password" id="registerConfirm" placeholder="Confirm Password" autocomplete="new-password">
+                <button onclick="handleRegister()">Create Account</button>
+                <p class="switch-form">Already have an account? <a href="#" onclick="showLogin()">Sign In</a></p>
+            </div>
+
 
 
 
