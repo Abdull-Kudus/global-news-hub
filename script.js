@@ -182,7 +182,15 @@ async function testApiKey(key) {
     try {
         showLoading();
         const response = await fetch(
-            `https://newsapi.org/v2/top-headlines?country=us&pageSize=1&apiKey=${key}`
+            'https://washington-post.p.rapidapi.com/categories',   
+            {
+                 method: 'GET',
+                headers: {
+                    'x-rapidapi-key': key,
+                    'x-rapidapi-host': 'washington-post.p.rapidapi.com',
+                    'Accept': 'application/json'
+                }
+            }
         );
 
         if (response.ok) {
@@ -194,6 +202,7 @@ async function testApiKey(key) {
             loadTopHeadlines();
         } else {
             hideLoading();
+            const errorData = await response.json().catch(() => ({}));
             alert('Invalid API key. Please check and try again.');
         }
     } catch (error) {
