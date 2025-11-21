@@ -1,6 +1,6 @@
 # Global News Hub
 
-A real-time news aggregation and tracking platform with user authentication, intelligent caching, and advanced filtering capabilities. Built with vanilla JavaScript and NewsAPI.
+A real-time news aggregation and tracking platform with user authentication, intelligent caching, and advanced filtering capabilities. Built with vanilla JavaScript and washington-post rapidapi.
 
 ---
 
