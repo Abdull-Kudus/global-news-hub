@@ -77,7 +77,7 @@ This application serves as a comprehensive news intelligence platform that helps
 
 ### Step 1: Get Your NewsAPI Key
 
-1. Visit: [https://newsapi.org/register](https://newsapi.org/register)
+1. Visit: [https://rapidapi.com/thosedev/api/washington-post](https://rapidapi.com/thosedev/api/washington-post)
 2. Fill in your details (takes 30 seconds)
 3. Verify your email
 4. Copy your API key from the dashboard
@@ -87,8 +87,8 @@ This application serves as a comprehensive news intelligence platform that helps
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/news-intelligence-hub.git
-cd news-intelligence-hub
+git clone https://github.com/Abdull-Kudus/global-news-hub.git
+cd global-news-hub
 
 # Or download ZIP and extract
 ```
@@ -333,14 +333,14 @@ sudo systemctl restart haproxy
 
 ```bash
 # Test individual servers
-curl http://WEB01_IP/news-hub/
-curl http://WEB02_IP/news-hub/
+curl http://52.207.254.138/news-hub/
+curl http://	13.218.21.126news-hub/
 
 # Test load balancer
 curl http://LOAD_BALANCER_IP/
 
 # Check which server responded (repeat multiple times)
-curl -I http://LOAD_BALANCER_IP/
+curl -I http://	52.55.240.245/
 ```
 
 ---
@@ -512,9 +512,8 @@ API Request → Check Cache (30 min validity) →
 #### 1. Top Headlines
 
 ```http
-GET https://newsapi.org/v2/top-headlines
+GET https://rapidapi.com/thosedev/api/washington-post
 Parameters:
-  - country: Country code (us, gb, ca, etc.)
   - category: Category name (business, tech, etc.)
   - pageSize: Number of articles (max 100)
   - apiKey: Your API key
@@ -523,7 +522,7 @@ Parameters:
 #### 2. Everything (Search)
 
 ```get
-GET https://newsapi.org/v2/everything
+GET https://rapidapi.com/thosedev/api/washington-post
 Parameters:
   - q: Search query
   - sortBy: publishedAt, relevancy, popularity
@@ -616,7 +615,7 @@ Parameters:
 ### APIs & Services
 
 - **NewsAPI.org**: News data provider
-- [https://newsapi.org](https://newsapi.org)
+- [https://rapidapi.com/thosedev/api/washington-post](https://rapidapi.com/thosedev/api/washington-post)
 
 ### Resources Used
 
