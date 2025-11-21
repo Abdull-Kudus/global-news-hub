@@ -260,8 +260,12 @@ function clearOldCaches() {
     
     // Remove oldest caches first
     cacheKeys.forEach(key => {
+        try {
         const data = JSON.parse(localStorage.getItem(key));
         if (Date.now() - data.timestamp > CACHE_DURATION) {
+            localStorage.removeItem(key);
+        }
+        } catch (e) {
             localStorage.removeItem(key);
         }
     });
