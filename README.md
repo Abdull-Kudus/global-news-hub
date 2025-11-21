@@ -77,7 +77,7 @@ This application serves as a comprehensive news intelligence platform that helps
 
 ### Step 1: Get Your NewsAPI Key
 
-1. Visit: [https://rapidapi.com/thosedev/api/washington-post](https://rapidapi.com/thosedev/api/washington-post)
+1. Visit: [https://rapidapi.com/thosedev-thosedev-default/api/washington-post(https://rapidapi.com/thosedev-thosedev-default/api/washington-post)
 2. Fill in your details (takes 30 seconds)
 3. Verify your email
 4. Copy your API key from the dashboard
@@ -512,7 +512,7 @@ API Request → Check Cache (30 min validity) →
 #### 1. Top Headlines
 
 ```http
-GET https://rapidapi.com/thosedev/api/washington-post
+GET https://rapidapi.com/thosedev-thosedev-default/api/washington-post
 Parameters:
   - category: Category name (business, tech, etc.)
   - pageSize: Number of articles (max 100)
@@ -522,7 +522,7 @@ Parameters:
 #### 2. Everything (Search)
 
 ```get
-GET https://rapidapi.com/thosedev/api/washington-post
+GET https://rapidapi.com/thosedev-thosedev-default/api/washington-post
 Parameters:
   - q: Search query
   - sortBy: publishedAt, relevancy, popularity
@@ -615,7 +615,7 @@ Parameters:
 ### APIs & Services
 
 - **NewsAPI.org**: News data provider
-- [https://rapidapi.com/thosedev/api/washington-post](https://rapidapi.com/thosedev/api/washington-post)
+- [https://rapidapi.com/thosedev-thosedev-default/api/washington-post](https://rapidapi.com/thosedev-thosedev-default/api/washington-post)
 
 ### Resources Used
 
