@@ -7,7 +7,7 @@ const CONFIG = {
     VERSION: '1.0.0',
     
     // API Configuration
-    API_BASE_URL: 'https://newsapi.org/v2',
+    API_BASE_URL: 'https://rapidapi.com/thosedev-thosedev-default/api/washington-post',
     
     // Cache Settings (in milliseconds)
     CACHE_DURATION: 30 * 60 * 1000, // 30 minutes
