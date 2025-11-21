@@ -334,13 +334,13 @@ sudo systemctl restart haproxy
 ```bash
 # Test individual servers
 curl http://52.207.254.138/news-hub/
-curl http://	13.218.21.126news-hub/
+curl http://13.218.21.126news-hub/
 
 # Test load balancer
 curl http://LOAD_BALANCER_IP/
 
 # Check which server responded (repeat multiple times)
-curl -I http://	52.55.240.245/
+curl -I http://52.55.240.245/
 ```
 
 ---
