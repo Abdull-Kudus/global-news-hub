@@ -1,6 +1,4 @@
 // Configuration File
-// DO NOT COMMIT THIS FILE TO GITHUB IF IT CONTAINS REAL API KEYS
-
 const CONFIG = {
     // Application Settings
     APP_NAME: 'Global News Hub',
@@ -13,24 +11,9 @@ const CONFIG = {
     CACHE_DURATION: 30 * 60 * 1000, // 30 minutes
     
     // Default Settings
-    DEFAULT_COUNTRY: 'us',
     DEFAULT_CATEGORY: 'all',
     DEFAULT_PAGE_SIZE: 50,
     
-    // Available Countries
-    COUNTRIES: {
-        'us': 'United States',
-        'gb': 'United Kingdom',
-        'ca': 'Canada',
-        'au': 'Australia',
-        'in': 'India',
-        'de': 'Germany',
-        'fr': 'France',
-        'it': 'Italy',
-        'jp': 'Japan',
-        'cn': 'China',
-        'rw': 'Rwanda'
-    },
     
     // Available Categories
     CATEGORIES: [
