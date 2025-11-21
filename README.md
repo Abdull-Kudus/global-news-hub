@@ -11,6 +11,7 @@ Watch the demo video here to see the web app in action
 - **Demo**: [demo url to todo]
 - **Name**: Abdul Kudus Zakaria Mukhtaru
 - **GitHub**: [https://github.com/Abdull-Kudus/global-news-hub.git]
+- **Website**:[https://bayanluxx.tech/news-hub/]
 
 ---
 
@@ -19,7 +20,7 @@ Watch the demo video here to see the web app in action
 This application serves as a comprehensive news intelligence platform that helps users:
 
 - Stay informed with real-time global news
-- Filter and sort news by categories, countries, and relevance
+- Filter and sort news by categories, education,politics and relevance
 - Save articles for later reading
 - Search for specific topics across multiple sources
 - Track personal reading preferences
@@ -242,7 +243,7 @@ sudo systemctl restart apache2
 
 ```bash
 # SSH into Lb01
-ssh user@lb01-ip
+ssh user@52.55.240.245
 
 # Install Nginx (if not installed)
 sudo apt update
@@ -257,8 +258,8 @@ Add this configuration:
 ```nginx
 upstream news_backend {
     # Round-robin load balancing (default)
-    server WEB01_IP_ADDRESS:80;
-    server WEB02_IP_ADDRESS:80;
+    server 52.207.254.138:80;
+    server13.218.21.126:80;
     
     # Health check settings
     keepalive 32;
@@ -266,7 +267,7 @@ upstream news_backend {
 
 server {
     listen 80;
-    server_name your-domain.com;  # Or use IP address
+    server_name https://bayanluxx.tech/news-hub/;  
 
     location / {
         proxy_pass http://news_backend;
@@ -320,8 +321,8 @@ frontend news_frontend
 backend news_backend
     balance roundrobin
     option httpchk GET /
-    server web01 WEB01_IP:80 check
-    server web02 WEB02_IP:80 check
+    server web01 52.207.254.138:80 check
+    server web02 13.218.21.126:80 check
 ```
 
 ```bash
