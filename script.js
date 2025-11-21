@@ -276,7 +276,7 @@ function updateCacheStatus(status) {
 }
 
 // ===== NEWS API FUNCTIONS =====
-async function fetchNews(url) {
+async function fetchNews(url, headers) {
     try {
         // Check cache first
         const cachedData = getCachedData(url);
@@ -285,17 +285,17 @@ async function fetchNews(url) {
         }
 
         updateCacheStatus('Fetching...');
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: headers
+        });
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
-
-        if (data.status === 'error') {
-            throw new Error(data.message || 'API Error');
-        }
 
         // Cache the response
         setCachedData(url, data);
@@ -308,24 +308,45 @@ async function fetchNews(url) {
 }
 
 async function loadTopHeadlines() {
-    const country = document.getElementById('countryFilter').value;
     const category = document.getElementById('categoryFilter').value;
+    const url = `https://washington-post.p.rapidapi.com/news/${category}?page=1`;
     
-    let url = `https://newsapi.org/v2/top-headlines?country=${country}&pageSize=50&apiKey=${apiKey}`;
-    
-    if (category !== 'all') {
-        url += `&category=${category}`;
-    }
+    const headers = {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'washington-post.p.rapidapi.com',
+        'Accept': 'application/json'
+    };
 
     try {
         showLoading();
         hideError();
         
-        const data = await fetchNews(url);
-        allArticles = data.articles || [];
+        const data = await fetchNews(url, headers);
+        
+        // Check if data has results
+        if (!data.results || data.results.length === 0) {
+            showError('No articles found for this category');
+            allArticles = [];
+            displayArticles(allArticles);
+            return;
+        }
+        
+        // Transform Washington Post format to our format
+        allArticles = data.results.map(article => ({
+            id: article.id,
+            title: article.title || 'No Title',
+            description: article.description || 'No description available',
+            url: article.url,
+            urlToImage: article.thumbnail,
+            audio: article.audio,
+            publishedAt: article.published,
+            source: { name: 'Washington Post' }
+        }));
+        
         displayArticles(allArticles);
         updateStats();
         updateLastUpdate();
+        updateCurrentCategory();
         
     } catch (error) {
         showError(error.message);
@@ -342,16 +363,50 @@ async function searchNews() {
         return;
     }
 
-    const sortBy = document.getElementById('sortFilter').value;
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=${sortBy}&pageSize=50&apiKey=${apiKey}`;
+    // For search, we'll get current category and filter locally
+    const category = document.getElementById('categoryFilter').value;
+    const url = `https://washington-post.p.rapidapi.com/news/${category}?page=1`;
+    
+    const headers = {
+        'x-rapidapi-key': apiKey,
+        'x-rapidapi-host': 'washington-post.p.rapidapi.com',
+        'Accept': 'application/json'
+    };
 
     try {
         showLoading();
         hideError();
         
-        const data = await fetchNews(url);
-        allArticles = data.articles || [];
-        displayArticles(allArticles);
+        const data = await fetchNews(url, headers);
+        
+        if (!data.results || data.results.length === 0) {
+            allArticles = [];
+        } else {
+            // Transform data
+            allArticles = data.results.map(article => ({
+                id: article.id,
+                title: article.title || 'No Title',
+                description: article.description || 'No description available',
+                url: article.url,
+                urlToImage: article.thumbnail,
+                audio: article.audio,
+                publishedAt: article.published,
+                source: { name: 'Washington Post' }
+            }));
+        }
+        
+        // Filter by search query (case-insensitive)
+        const queryLower = query.toLowerCase();
+        const filtered = allArticles.filter(article => 
+            (article.title && article.title.toLowerCase().includes(queryLower)) ||
+            (article.description && article.description.toLowerCase().includes(queryLower))
+        );
+        
+        if (filtered.length === 0) {
+            showError(`No articles found matching "${query}". Try a different search term.`);
+        }
+        
+        displayArticles(filtered);
         updateStats();
         updateLastUpdate();
         
@@ -363,14 +418,31 @@ async function searchNews() {
 }
 
 function applyFilters() {
-    // Reload with new filters
-    const searchQuery = document.getElementById('searchInput').value.trim();
+    // Clear search input when changing filters
+    document.getElementById('searchInput').value = '';
     
-    if (searchQuery) {
-        searchNews();
-    } else {
-        loadTopHeadlines();
+    // Reload with new category
+    loadTopHeadlines();
+}
+
+function sortArticles() {
+    const sortBy = document.getElementById('sortFilter').value;
+    
+    let sortedArticles = [...allArticles];
+    
+    if (sortBy === 'publishedAt') {
+        sortedArticles.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    } else if (sortBy === 'title') {
+        sortedArticles.sort((a, b) => a.title.localeCompare(b.title));
     }
+    
+    displayArticles(sortedArticles);
+}
+
+function updateCurrentCategory() {
+    const category = document.getElementById('categoryFilter').value;
+    const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+    document.getElementById('currentCategory').textContent = categoryDisplay;
 }
 
 // ===== DISPLAY FUNCTIONS =====
@@ -386,43 +458,39 @@ function displayArticles(articles) {
 
     emptyState.classList.add('hidden');
 
-    // Filter out articles without titles or images
-    const validArticles = articles.filter(article => 
-        article.title && 
-        article.title !== '[Removed]' && 
-        article.description
-    );
-
-    grid.innerHTML = validArticles.map(article => createArticleCard(article)).join('');
+    grid.innerHTML = articles.map(article => createArticleCard(article)).join('');
 }
 
 function createArticleCard(article) {
-    const imageUrl = article.urlToImage || 'https://via.placeholder.com/400x200?text=No+Image';
-    const source = article.source.name || 'Unknown Source';
+    const imageUrl = article.urlToImage || 'https://via.placeholder.com/400x200?text=Washington+Post';
     const title = article.title || 'No Title';
     const description = article.description || 'No description available';
     const publishedAt = new Date(article.publishedAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
     const isSaved = savedArticles.some(saved => saved.url === article.url);
     const saveButtonText = isSaved ? '✓ Saved' : '💾 Save';
-    const saveButtonClass = isSaved ? 'btn-save' : 'btn-save';
+
+    // Escape quotes in JSON for onclick
+    const articleJson = JSON.stringify(article).replace(/"/g, '&quot;');
 
     return `
         <div class="article-card">
             <img src="${imageUrl}" alt="${title}" class="article-image" 
                  onerror="this.src='https://via.placeholder.com/400x200?text=Image+Unavailable'">
             <div class="article-content">
-                <div class="article-source">${source}</div>
+                <div class="article-source">Washington Post</div>
                 <h3 class="article-title">${title}</h3>
-                <p class="article-description">${description.substring(0, 150)}...</p>
+                <p class="article-description">${description.substring(0, 150)}${description.length > 150 ? '...' : ''}</p>
                 <div class="article-meta">
-                    <span class="article-date">${publishedAt}</span>
+                    <span class="article-date">📅 ${publishedAt}</span>
                     <div class="article-actions">
-                        <button class="${saveButtonClass}" onclick='saveArticle(${JSON.stringify(article).replace(/'/g, "&apos;")})'>${saveButtonText}</button>
+                        <button class="btn-save" onclick='saveArticle(${articleJson})'>${saveButtonText}</button>
                         <a href="${article.url}" target="_blank" class="btn-read">Read More</a>
                     </div>
                 </div>
@@ -434,13 +502,16 @@ function createArticleCard(article) {
 function updateStats() {
     document.getElementById('totalArticles').textContent = allArticles.length;
     document.getElementById('savedArticles').textContent = savedArticles.length;
-    
-    const uniqueSources = new Set(allArticles.map(a => a.source.name)).size;
-    document.getElementById('totalSources').textContent = uniqueSources;
 }
 
 function updateLastUpdate() {
-    const now = new Date().toLocaleString();
+    const now = new Date().toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
     document.getElementById('lastUpdate').textContent = now;
 }
 
@@ -490,6 +561,11 @@ function showError(message) {
     const errorDiv = document.getElementById('errorState');
     errorDiv.textContent = '⚠️ ' + message;
     errorDiv.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        errorDiv.classList.add('hidden');
+    }, 5000);
 }
 
 function hideError() {
