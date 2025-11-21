@@ -34,8 +34,7 @@ This application serves as a comprehensive news intelligence platform that helps
 ### Core Features
 
 - **Real-time News**: Fetches live news from 60,000+ sources worldwide via NewsAPI
-- **Advanced Filtering**: Filter by category (Business, Technology, Health, Sports, etc.)
-- **Multi-Country Support**: View news from US, UK, Canada, Australia, India, and more
+- **Advanced Filtering**: Filter by category (Business, Politics, Technology, Health, Sports, etc.)
 - **Smart Search**: Search across all news sources with relevancy sorting
 - **Sort Options**: Sort by latest, relevancy, or popularity
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
