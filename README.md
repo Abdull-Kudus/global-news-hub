@@ -1,6 +1,6 @@
 # Global News Hub
 
-A real-time news aggregation and tracking platform with user authentication, intelligent caching, and advanced filtering capabilities. Built with vanilla JavaScript and washington-post rapidapi.
+A real-time news aggregation and tracking platform with user authentication, intelligent caching, and advanced filtering capabilities. Built with vanilla JavaScript and washington-post RapidAPI.
 
 ---
 
@@ -8,7 +8,9 @@ A real-time news aggregation and tracking platform with user authentication, int
 
 Watch the demo video here to see the web app in action
 
-- **Demo**: [demo url to todo]
+- **Demo**: [https://youtu.be/MYaBd0IyANs]
+
+- 
 - **Name**: Abdul Kudus Zakaria Mukhtaru
 - **GitHub**: [https://github.com/Abdull-Kudus/global-news-hub.git]
 - **Website**:[https://bayanluxx.tech/news-hub/]
@@ -664,7 +666,7 @@ SOFTWARE.
 - **Name**: Abdul Kudus Zakaria Mukhtaru
 - **Email**: <a.zakariam@alustudent.com>
 - **GitHub**: [https://github.com/Abdull-Kudus/global-news-hub.git]
-- **Demo**: [demo link to put here later]
+- **Demo**: [https://youtu.be/MYaBd0IyANs]
 
 ---
 
